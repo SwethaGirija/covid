@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COVID Vaccine Availability Admin</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #e4958f;
+      margin: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    #adminForm, #adminOptions {
+      margin-top: 20px;
+    }
+    #adminForm input, #adminOptions button {
+      padding: 10px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #adminForm button, #adminOptions button {
+      background-color: #007bff;
+      color: #fff;
+    }
+    #locations {
+      border-collapse: collapse;
+      width: 80%;
+      margin-top: 20px;
+    }
+    #locations th, #locations td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    .delete-btn {
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>COVID Vaccine Availability Admin</h1>
+  <div id="adminForm">
+    <form onsubmit="return addLocation()">
+      <label for="newName">Name:</label>
+      <input type="text" id="newName" required>
+      <label for="newAddress">Address:</label>
+      <input type="text" id="newAddress" required>
+      <label for="newDoses">Available Doses:</label>
+      <input type="number" id="newDoses" required>
+      <button type="submit">Add Location</button>
+    </form>
+    <br>
+    <br>
+
+    <form onsubmit="return deleteLocation()">
+      <label for="locationIndex">Location Index:</label>
+      <input type="number" id="locationIndex" required>
+      <button type="submit">Delete Location</button>
+    </form>
+  </div>
+   <br>
+   <br>
+  <table id="locations">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Address</th>
+        <th>Available Doses</th>
+        <th></th>
+        <!-- For delete button column -->
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    //password check
+   
+  
+    // Function to display locations and available doses
+    function displayLocations() {
+      const locationsTable = document.getElementById('locations').getElementsByTagName('tbody')[0];
+      locationsTable.innerHTML = ''; // Clear existing table rows
+
+      const locationsData = JSON.parse(localStorage.getItem('locationsData')) || [];
+
+      locationsData.forEach((location, index) => {
+        const row = locationsTable.insertRow();
+        const cellName = row.insertCell(0);
+        const cellAddress = row.insertCell(1);
+        const cellDoses = row.insertCell(2);
+        const cellDeleteBtn = row.insertCell(3);
+
+        cellName.textContent = location.name;
+        cellAddress.textContent = location.address;
+        cellDoses.textContent = location.availableDoses;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.onclick = function() {
+          deleteLocation(index);
+        };
+        cellDeleteBtn.appendChild(deleteBtn);
+      });
+    }
+
+    // Function to add a new location
+    function addLocation() {
+      const newName = document.getElementById('newName').value;
+      const newAddress = document.getElementById('newAddress').value;
+      const newDoses = parseInt(document.getElementById('newDoses').value);
+
+      if (newName && newAddress && !isNaN(newDoses)) {
+        const newLocation = { name: newName, address: newAddress, availableDoses: newDoses };
+        const locationsData = JSON.parse(localStorage.getItem('locationsData')) || [];
+        locationsData.push(newLocation);
+        localStorage.setItem('locationsData', JSON.stringify(locationsData));
+        displayLocations();
+        return false; // Prevent form submission
+      } else {
+        alert('Invalid input. Please enter valid information.');
+        return false; // Prevent form submission
+      }
+    }
+
+    // Function to delete a location
+    function deleteLocation(index) {
+      const locationsData = JSON.parse(localStorage.getItem('locationsData')) || [];
+
+      if (index >= 0 && index < locationsData.length) {
+        locationsData.splice(index, 1);
+        localStorage.setItem('locationsData', JSON.stringify(locationsData));
+        displayLocations();
+        return false; // Prevent form submission
+      } else {
+        alert('Invalid index. Please enter a valid index.');
+        return false; // Prevent form submission
+      }
+    }
+
+    // Display initial admin form
+    document.getElementById('adminForm').style.display = 'block';
+    // Display initial locations
+    displayLocations();
+  </script>
+
+</body>
+</html>
